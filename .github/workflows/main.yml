@@ -1,43 +1,46 @@
-名称: “更新计划”
-
-
+name: 'Update schedule'
+on:
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * *'
-
 jobs:
   push:
-运行于: ${{matrix.操作系统}}
-策略:
-矩阵:
-操作系统: [ 'ubuntu-latest' ]
-步骤:
-      - 名称: 设置分支名称
-        id: vars
-运行: echo"BRANCH_NAME=${{ github.repository_owner == 'Guovin' && 'gd' || 'master' }}">> $GITHUB_ENV
-      - 用途: actions/checkout@v6
-:
-${{env.BRANCH_NAME}
-      - 名称: 使用 setup-python 3.14 运行
-用途: actions/setup-python@v6
-与:
-python版本: '3.14'
-更新环境: true
-缓存: 'pipenv'
-      - 名称: 安装FFmpeg
-运行: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - 名称: 安装 pipenv
-运行: pip3 install --user pipenv
-      - 名称: 安装依赖项
-运行: Pipenv --python 3.14 && Pipenv install --deploy
-      - 名称: 更新
-运行: pipenv 运行 dev
-      - 名称: 如有更改则提交并推送
-运行: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+    steps:
+      - name: Set branch name
+        run: echo "BRANCH_NAME=${BRANCH_NAME:-master}" >> $GITHUB_ENV
+        env:
+          BRANCH_NAME: ${{ github.repository_owner == 'Guovin' && 'gd' || 'master' }}
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install pipenv
+        run: |
+          pip3 install --user pipenv
+          export PATH="$PATH:/home/runner/.local/bin"
+      - name: Install dependecies
+        run: |
+          export PATH="$PATH:/home/runner/.local/bin"
+          pipenv --python 3.14 && pipenv install --deploy
+      - name: Update
+        run: |
+          export PATH="$PATH:/home/runner/.local/bin"
+          pipenv run dev
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
           git add .
-如果 ! git diff --staged --quiet; 则
-git commit -m "Github Action 自动更新"
+          if ! git diff --staged --quiet; then
+            git commit -m "Github Action Auto Updated"
             git push --force
           fi
