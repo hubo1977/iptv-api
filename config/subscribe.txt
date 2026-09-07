@@ -1,3 +1,6 @@
-# 纯IPv4直播源（供 GitHub Actions 抓取）
-https://raw.githubusercontent.com/wwb521/live/main/tv/tv.m3u
-https://raw.githubusercontent.com/ssili126/tv/main/itvlist.txt
+# 供 GitHub Actions 抓取的源池（美国 runner 可访问）
+# Guovin 官方自动更新成品，台最全，含央视/卫视/四省台
+https://raw.githubusercontent.com/Guovin/iptv-api/gd/output/result.m3u
+https://raw.githubusercontent.com/Guovin/iptv-api/master/output/result.m3u
+# 备用聚合源（国际可访问，补充候选）
+https://raw.githubusercontent.com/Ftindy/IPTV-URL/main/IPTV.m3u
