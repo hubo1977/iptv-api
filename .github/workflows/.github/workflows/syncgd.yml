@@ -1,0 +1,29 @@
+name: SyncGD
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 拉取全省级源(GD)
+        run: |
+          curl -L --fail --connect-timeout 40 \
+            "https://raw.githubusercontent.com/Guovin/iptv-api/gd/output/result.m3u" \
+            -o gd.m3u
+          head -n 2 gd.m3u
+      - name: 提交推送
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add gd.m3u
+          if ! git diff --cached --quiet; then
+            git commit -m "Auto sync GD full source"
+            git push origin HEAD:master
+          else
+            echo "no-change"
+          fi
